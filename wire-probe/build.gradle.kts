@@ -6,8 +6,8 @@ plugins {
 
 val desugar = providers.gradleProperty("sedap.desugar").map(String::toBoolean).getOrElse(true)
 val withLib = providers.gradleProperty("probe.withLib").map(String::toBoolean).getOrElse(true)
-// Runs the instrumented tests against the minified release build, to catch problems with R8.
-val testRelease = providers.gradleProperty("probe.testRelease").map(String::toBoolean).getOrElse(false)
+// Puts the checks into the app itself, so that a minified release build can run them.
+val selfCheck = providers.gradleProperty("probe.selfCheck").map(String::toBoolean).getOrElse(false)
 
 android {
     namespace = "de.visentra.sedapexpress.probe"
@@ -23,17 +23,10 @@ android {
         multiDexEnabled = true
     }
 
-    if (testRelease) {
-        testBuildType = "release"
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
-            if (testRelease) {
-                proguardFiles("probe-test-rules.pro")
-            }
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -45,7 +38,17 @@ android {
     }
 
     sourceSets {
-        getByName("main").java.srcDir(if (withLib) "src/withLib/java" else "src/withoutLib/java")
+        getByName("main").java.srcDir(
+            when {
+                selfCheck -> "src/selfCheck/java"
+                withLib -> "src/withLib/java"
+                else -> "src/withoutLib/java"
+            },
+        )
+        if (selfCheck) {
+            getByName("main").java.srcDir("../sedap-wire/src/sharedTest/java")
+            getByName("main").assets.srcDir("../vectors")
+        }
         getByName("androidTest").java.srcDir("../sedap-wire/src/sharedTest/java")
         getByName("androidTest").assets.srcDir("../vectors")
     }

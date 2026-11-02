@@ -44,7 +44,7 @@ val swaps = listOf(
     "CompressUtils.deflater).readAllBytes()" to "CompressUtils.deflater))",
     "new InflaterInputStream(" to "de.visentra.sedapexpress.compat.Streams.readAll(new InflaterInputStream(",
     "CompressUtils.inflater).readAllBytes()" to "CompressUtils.inflater))",
-    // Invalid Base64 must not escape from decompressMessage (NFR-REL-02).
+    // Invalid Base64 must not escape from decompressMessage.
     "catch (final IOException e)" to "catch (final IOException | IllegalStateException e)",
 )
 

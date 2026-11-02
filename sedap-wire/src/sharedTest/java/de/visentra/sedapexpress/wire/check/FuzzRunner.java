@@ -9,7 +9,7 @@ import de.bundeswehr.uniity.sedapexpress.messages.SEDAPExpressMessage;
 import de.bundeswehr.uniity.sedapexpress.utils.CompressUtils;
 
 /**
- * Feeds garbage to the parsers with a fixed seed (NFR-REL-02). Anything that escapes deserialize,
+ * Feeds garbage to the parsers with a fixed seed. Anything that escapes deserialize,
  * toString or decompressMessage counts as a finding, grouped by exception type and source frame.
  */
 public final class FuzzRunner {

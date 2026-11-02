@@ -11,7 +11,7 @@ public class ProbeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final TextView view = new TextView(this);
-        view.setText(ProbeEntry.run());
+        view.setText(ProbeEntry.run(this));
         setContentView(view);
     }
 }

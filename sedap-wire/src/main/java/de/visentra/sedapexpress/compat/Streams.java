@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 /**
  * Replaces {@code InputStream.readAllBytes()}, which only exists from API 33. Unlike the original it
- * stops at a size limit, so that a small compressed message cannot exhaust the memory (NFR-REL-02).
+ * stops at a size limit, so that a small compressed message cannot exhaust the memory.
  */
 public final class Streams {
 
