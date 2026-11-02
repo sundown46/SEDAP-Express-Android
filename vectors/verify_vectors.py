@@ -213,7 +213,7 @@ def serialize(kind, fields):
         elif isinstance(value, float):
             value = wire_number(value)
         parts[index] = value
-    return ";".join(parts) + "\n"
+    return ";".join(parts).rstrip(";") + "\n"
 
 
 def main():

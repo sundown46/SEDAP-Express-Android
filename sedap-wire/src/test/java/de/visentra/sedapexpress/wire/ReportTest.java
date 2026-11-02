@@ -65,7 +65,6 @@ public class ReportTest {
     static {
         final String strict = "upstream parses leniently, the Kotlin layer must reject this";
         final String twoDigits = "upstream only accepts one digit, the Kotlin layer must read 00-04";
-        final String semicolons = "upstream drops trailing semicolons, the receiver and the MAC ignore them";
         final String harness = "same meaning, only represented differently";
         KNOWN.put("parse[3] OWNUNIT reject", strict);
         KNOWN.put("parse[6] CONTACT reject", strict);
@@ -79,8 +78,6 @@ public class ReportTest {
         KNOWN.put("text_kind.read[04]", twoDigits);
         KNOWN.put("parse[14] TEXT .kind", twoDigits);
         KNOWN.put("parse[15] TEXT .kind", twoDigits);
-        KNOWN.put("serialize[1] HEARTBEAT", semicolons);
-        KNOWN.put("serialize[2] TEXT", semicolons);
         KNOWN.put("parse[2] OWNUNIT .name", harness + ": null instead of empty");
         KNOWN.put("parse[14] TEXT .recipient", harness + ": null instead of empty");
         KNOWN.put("parse[4] CONTACT .source", harness + ": a set, upstream sorts it");

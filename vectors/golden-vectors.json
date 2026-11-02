@@ -166,16 +166,16 @@
   ],
 
   "serialize": [
-    {"note": "Felder ohne Wert bleiben leer. OWNUNIT sendet den SIDC in Großbuchstaben.",
+    {"note": "Felder ohne Wert bleiben leer, Semikolons am Zeilenende entfallen wie in der Referenz. OWNUNIT sendet den SIDC in Großbuchstaben.",
      "type": "OWNUNIT",
      "fields": {"number": "00", "time": "01A19BD5FCD0", "sender": "MESE", "classification": "U", "latitude": 53.32, "longitude": 8.11, "sidc": "sfspclff-------"},
      "expected": "OWNUNIT;00;01A19BD5FCD0;MESE;U;;;53.32;8.11;;;;;;;;SFSPCLFF-------\n"},
     {"type": "HEARTBEAT",
      "fields": {"number": "07", "time": "01A19BD5FCD0", "sender": "MESE", "classification": "U"},
-     "expected": "HEARTBEAT;07;01A19BD5FCD0;MESE;U;;;\n"},
+     "expected": "HEARTBEAT;07;01A19BD5FCD0;MESE;U\n"},
     {"type": "TEXT",
      "fields": {"number": "01", "time": "01A19BD5FCD0", "sender": "MESE", "classification": "U", "recipient": "ORKA", "kind": "chat", "encoding": "BASE64", "text": "TfxuY2hlbiCj/w==", "reference": ""},
-     "expected": "TEXT;01;01A19BD5FCD0;MESE;U;;;ORKA;4;BASE64;TfxuY2hlbiCj/w==;\n"},
+     "expected": "TEXT;01;01A19BD5FCD0;MESE;U;;;ORKA;4;BASE64;TfxuY2hlbiCj/w==\n"},
     {"type": "ACKNOWLEDGE",
      "fields": {"number": "02", "time": "01A19BD5FCD0", "sender": "MESE", "classification": "U", "recipient": "324E", "typeOfMessage": "TEXT", "numberOfMessage": "78"},
      "expected": "ACKNOWLEDGE;02;01A19BD5FCD0;MESE;U;;;324E;TEXT;78\n"}
