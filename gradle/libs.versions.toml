@@ -1,0 +1,22 @@
+[versions]
+# AGP and Gradle match the ATAK plugin template, so the plugin can include this build.
+agp = "8.13.0"
+desugar = "2.1.5"
+junit = "4.13.2"
+orgJson = "20250517"
+bouncycastle = "1.86"
+androidxTestRunner = "1.6.2"
+androidxTestExtJunit = "1.2.1"
+
+[libraries]
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
+junit = { module = "junit:junit", version.ref = "junit" }
+org-json = { module = "org.json:json", version.ref = "orgJson" }
+# Test only: cross-checks the BouncyCastle-free replacements against what upstream uses.
+bouncycastle-prov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
+androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidxTestExtJunit" }
+
+[plugins]
+android-library = { id = "com.android.library", version.ref = "agp" }
+android-application = { id = "com.android.application", version.ref = "agp" }

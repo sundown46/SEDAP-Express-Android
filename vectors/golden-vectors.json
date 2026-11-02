@@ -1,0 +1,183 @@
+{
+  "meta": {
+    "purpose": "Plattformneutrale Soll-Werte für die SEDAP-Express-Wire-Logik. Jede Implementierung muss dieselben Ergebnisse liefern.",
+    "derived_from": "Aus der Java-Referenz und den ICD-Beispielen. Einträge mit source=android gehen bewusst über die Referenz hinaus und werden von der Kotlin-Schicht erfüllt, wenn die Referenz sie nicht erfüllt.",
+    "check": "python3 vectors/verify_vectors.py",
+    "notes": [
+      "Alle Strings sind Unicode. Auf dem Draht gilt ISO-8859-1.",
+      "parse.expect nennt nur die geprüften Felder; alles andere ist nicht Teil des Vektors.",
+      "parse.reject=true heißt: Parser liefert kein Objekt."
+    ]
+  },
+
+  "mac": {
+    "algorithm": "hex = Großbuchstaben-Hex von HMAC-SHA256(key=latin1(password), msg=latin1(line ohne \\n und ohne Semikolons am Ende)); mac = %08X von Adler32(ascii(hex))",
+    "compute": [
+      {"password": "expressexpressex", "line": "OWNUNIT;5E;0195236D151A;66A3;R;;0000;53.32;8.11;0;5.5;21;22;;;FGS Bayern", "expected": "E2560ED7"},
+      {"password": "geheim", "line": "HEARTBEAT;00;01A19BD5FCD0;MESE;U;;0000", "expected": "CBD70E18"},
+      {"password": "geheim", "line": "HEARTBEAT;00;01A19BD5FCD0;MESE;U;;0000;\n", "expected": "CBD70E18"},
+      {"password": "geheim", "line": "HEARTBEAT;00;01A19BD5FCD0;MESE;U;;0000;;;", "expected": "CBD70E18"},
+      {"password": "geheim", "line": "TEXT;01;01A19BD5FCD0;MESE;S;;0000;ORKA;4;BASE64;TfxuY2hlbiCj/w==", "expected": "F3420F21"},
+      {"password": "pässwort", "line": "ACKNOWLEDGE;18;0195238E25AD;Müller;R;;0000;LASSY;COMMAND;2B", "expected": "DB980E92"}
+    ],
+    "verify": [
+      {"password": "geheim", "line": "HEARTBEAT;00;01A19BD5FCD0;MESE;U;;CBD70E18", "valid": true},
+      {"password": "geheim", "line": "heartbeat-kleinbuchstaben-mac:HEARTBEAT;00;01A19BD5FCD0;MESE;U;;cbd70e18", "valid": true, "note": "Präfix bis zum Doppelpunkt vor dem Prüfen entfernen: Der Vergleich des MAC ignoriert die Groß-/Kleinschreibung."},
+      {"password": "falsch", "line": "HEARTBEAT;00;01A19BD5FCD0;MESE;U;;CBD70E18", "valid": false},
+      {"password": "geheim", "line": "HEARTBEAT;00;01A19BD5FCD0;ORKA;U;;CBD70E18", "valid": false},
+      {"password": "geheim", "line": "HEARTBEAT;00;01A19BD5FCD0;MESE", "valid": false, "note": "Weniger als 7 Felder: kein MAC-Feld, also ungültig."}
+    ]
+  },
+
+  "number_format": {
+    "rule": "wie DecimalFormat(\"##.############\") der Referenz: kein Exponent, kein .0, höchstens 12 Nachkommastellen, HALF_EVEN, immer Punkt als Dezimaltrenner",
+    "cases": [
+      {"value": "0", "expected": "0"}, {"value": "1", "expected": "1"}, {"value": "21", "expected": "21"},
+      {"value": "-10.12", "expected": "-10.12"}, {"value": "53.32", "expected": "53.32"},
+      {"value": "0.5", "expected": "0.5"}, {"value": "-0.5", "expected": "-0.5"},
+      {"value": "0.00003", "expected": "0.00003"}, {"value": "0.00001", "expected": "0.00001"},
+      {"value": "5577", "expected": "5577"}, {"value": "120.5", "expected": "120.5"},
+      {"value": "12345678", "expected": "12345678"},
+      {"value": "53.123456789012345", "expected": "53.123456789012"},
+      {"value": "0.1234567890125", "expected": "0.123456789012"},
+      {"value": "0.1234567890135", "expected": "0.123456789014"},
+      {"value": "1e16", "expected": "10000000000000000"},
+      {"value": "2.5e-13", "expected": "0"}
+    ]
+  },
+
+  "timestamp": {
+    "rule": "Unix-Millisekunden als 12-stelliges Großbuchstaben-Hex",
+    "cases": [{"ms": 1798761600123, "expected": "01A2CE8BD47B"}, {"ms": 0, "expected": "000000000000"}]
+  },
+
+  "counter": {
+    "rule": "Je Nachrichtentyp ein eigener 7-Bit-Zähler, beginnt bei 00, nach 7F wieder 00, zweistellig Großbuchstaben-Hex. Reconnect setzt nicht zurück. Eine abgelehnte Nachricht verbraucht keine Nummer.",
+    "sequence_tail": {"index_127": "7F", "index_128": "00"}
+  },
+
+  "text_kind": {
+    "read": [
+      {"wire": "0", "kind": "undefined"}, {"wire": "1", "kind": "alert"}, {"wire": "2", "kind": "warning"},
+      {"wire": "3", "kind": "notice"}, {"wire": "4", "kind": "chat"},
+      {"wire": "00", "kind": "undefined"}, {"wire": "01", "kind": "alert"}, {"wire": "02", "kind": "warning"},
+      {"wire": "03", "kind": "notice"}, {"wire": "04", "kind": "chat"},
+      {"wire": "", "kind": "undefined"}, {"wire": "9", "kind": "undefined"}, {"wire": "x", "kind": "undefined"}
+    ],
+    "write": [{"kind": "chat", "wire": "4"}, {"kind": "alert", "wire": "1"}]
+  },
+
+  "base64_text": {
+    "decode": [
+      {"input": "TfxuY2hlbiCj/w==", "expected": "München £ÿ", "note": "ISO-8859-1, kein gültiges UTF-8"},
+      {"input": "w6Tigqzwn5iA", "expected": "ä€😀", "note": "UTF-8"},
+      {"input": "VXNlIENIMjI=", "expected": "Use CH22"},
+      {"input": "%%%", "expected": null, "note": "Ungültig: Decoder liefert null, die Anzeige fällt auf den Rohwert zurück. Ein toleranter Decoder, der fremde Zeichen überspringt, liefert hier leere Bytes und muss das als Fehler werten.", "source": "android"}
+    ],
+    "encode": [
+      {"text": "München £ÿ", "expected": "TfxuY2hlbiCj/w==", "charset": "ISO-8859-1"},
+      {"text": "Lage 😀", "expected": "TGFnZSDwn5iA", "charset": "UTF-8", "note": "Fallback nur, wenn ISO-8859-1 nicht reicht"}
+    ]
+  },
+
+  "compression": {
+    "rule": "Base64 + rohes Deflate (kein zlib-Header). Der Stream muss vollständig sein.",
+    "decompress": [
+      {"input": "C3GNCLE2NbY2MLQ0NTK2MHQ1MnSyNjYycbUOtg4JCnW1BgJDaz9/P1drpZCMzGIFIErMU0jMSS0qUVQCAA==",
+       "expected": "TEXT;53;01952381E21B;324E;S;TRUE;;;;1;NONE;\"This is an alert!\"",
+       "note": "ICD-§3.3-Beispiel. Achtung: Es hat ein Leerfeld zu viel (Typ auf Index 9, Text auf Index 11) und lässt sich nicht als regulärer TEXT parsen. Der Vektor prüft nur die Dekompression."}
+    ],
+    "invalid": ["", "not base64!", "AAAA"]
+  },
+
+  "sidc_normalize": {
+    "rule": "trimmen, Großbuchstaben, * zu -, nur A-Z 0-9 und - erlaubt, kurze Codes rechts mit - auf 15 auffüllen",
+    "cases": [
+      {"input": "SFGPUCRL-------", "expected": "SFGPUCRL-------"},
+      {"input": "SFGPUCRL----", "expected": "SFGPUCRL-------"},
+      {"input": " sfgp*crl ", "expected": "SFGP-CRL-------"},
+      {"input": "", "expected": null},
+      {"input": "SFG!", "expected": null}
+    ],
+    "source": "android"
+  },
+
+  "cluster_key": {
+    "rule": "Index 1 des SIDC ergibt die Identität: F/A=F, H/S=H, N=N, U=U, sonst X. Zivil (siehe civilian_rule) ergibt C, außer bei H/S und ohne bekannte Identität.",
+    "civilian_rule": "mindestens 10 Zeichen; Index 2=A und Funktions-ID (Index 4-9) beginnt mit C; Index 2=G und beginnt mit EVC; Index 2=S und beginnt mit X",
+    "cases": [
+      {"sidc": "SFGPUCRL-------", "key": "F"}, {"sidc": "SAGPUCRL-------", "key": "F"},
+      {"sidc": "SHGPUCRL-------", "key": "H"}, {"sidc": "SSGPUCRL-------", "key": "H"},
+      {"sidc": "SNGPUCRL-------", "key": "N"}, {"sidc": "SUGPUCRL-------", "key": "U"},
+      {"sidc": "SFAPCF---------", "key": "C"}, {"sidc": "SFGPEVC--------", "key": "C"},
+      {"sidc": "SFSPXM---------", "key": "C"}, {"sidc": "SHAPCF---------", "key": "H"},
+      {"sidc": "GFOPEP---------", "key": "F"}, {"sidc": "", "key": "X"}, {"sidc": "S", "key": "X"}
+    ],
+    "source": "android"
+  },
+
+  "relative_position": {
+    "rule": "x=Ost, y=Nord, z=oben, flache Erde, R=6371000 m. dLat=y/R, dLon=x/(R*cos(lat)), Höhe=(ref.alt oder 0)+z nur wenn z vorhanden",
+    "cases": [
+      {"reference": {"lat": 53.0, "lon": 8.0, "alt": 100}, "x": 0, "y": 1000, "z": 10, "expected": {"lat": 53.00899322, "lon": 8.0, "alt": 110}},
+      {"reference": {"lat": 53.0, "lon": 8.0, "alt": null}, "x": 1000, "y": 0, "z": null, "expected": {"lat": 53.0, "lon": 8.01494309, "alt": null}}
+    ],
+    "tolerance_degrees": 0.000001
+  },
+
+  "parse": [
+    {"type": "OWNUNIT", "line": "OWNUNIT;11;0191C643A8AF;22AA;U;FALSE;4389F10D;77.88;-10.12;5577.0;33.44;55.66;1.1;-2.2;3.3;Ownunit;SFGPIB----H----",
+     "expect": {"number": "11", "sender": "22AA", "classification": "U", "mac": "4389F10D", "latitude": 77.88, "longitude": -10.12, "altitude": 5577.0, "speed": 33.44, "course": 55.66, "heading": 1.1, "roll": -2.2, "pitch": 3.3, "name": "Ownunit", "sidc": "SFGPIB----H----"}},
+    {"type": "OWNUNIT", "line": "OWNUNIT;5E;0191C643A8AF;DRONEONE;R;;;53.32;8.11;0;5.5;21;22;;;FGS Bayern;SFSPCLFF-------",
+     "expect": {"altitude": 0, "roll": null, "pitch": null, "name": "FGS Bayern"}},
+    {"type": "OWNUNIT", "line": "OWNUNIT;5E;;;;;;53.32;8.11", "expect": {"latitude": 53.32, "name": ""}},
+    {"type": "OWNUNIT", "line": "OWNUNIT;5E;0191C643A8AF;DRONEONE", "reject": true},
+    {"type": "CONTACT", "line": "CONTACT;5E;0191C643A8AF;83C5;R;;;100;FALSE;53.32;8.11;0;;;;120;275;;;;;;;FGS Bayern;AR;SFSPCLFF-------;;;;VXNlIENIMjI=",
+     "expect": {"contactID": "100", "deleteFlag": false, "speed": 120, "course": 275, "name": "FGS Bayern", "source": "AR", "sidc": "SFSPCLFF-------", "comment_decoded": "Use CH22"}},
+    {"type": "CONTACT", "line": "CONTACT;5F;0191C643A8AF;83C5;U;;;101;;36.32;12.11;2000;;;;44;;;;;;;;Unknown;O;;221333201;;;UG9zcyBOZXRoZXJsYW5kcw==",
+     "expect": {"deleteFlag": false, "mmsi": "221333201", "comment_decoded": "Poss Netherlands"}},
+    {"type": "CONTACT", "line": "CONTACT;5E;0191C643A8AF;83C5;R;;;100;FALSE", "reject": true},
+    {"type": "CONTACT", "line": "CONTACT;5E;;83C5;R;;;100;FALSE;;;;0;1000;10", "reject": true, "note": "relativ, aber keine Bezugsposition vorhanden"},
+    {"type": "CONTACT", "line": "CONTACT;60;0191C643A8AF;66A3;S;TRUE;;102;TRUE;53.32;8.11", "expect": {"contactID": "102", "deleteFlag": true, "acknowledgement": "TRUE"}},
+    {"type": "CONTACT", "line": "CONTACT;61;0191C643A8AF;66A3;S;;;102;TRUE", "expect": {"contactID": "102", "deleteFlag": true},
+     "source": "android", "note": "Soll: Löschen braucht keine Position."},
+    {"type": "CONTACT", "line": "CONTACT;62;;66A3;S;;;;FALSE;53.32;8.11", "reject": true,
+     "source": "android", "note": "Soll: leere ContactID ablehnen."},
+    {"type": "CONTACT", "line": "CONTACT;63;;66A3;S;;;103;FALSE;200;8.11", "reject": true,
+     "source": "android", "note": "Soll: Koordinate außerhalb des Wertebereichs ablehnen."},
+    {"type": "POINT", "line": "POINT;5E;0000661D4410;66A3;R;;;100;FALSE;53.32;8.11;0;;;;120;275;;;;;;;Target Alpha;gffppt---------;;VGFyZ2V0IHBvaW50",
+     "expect": {"pointID": "100", "name": "Target Alpha", "sidc": "gffppt---------", "comment_decoded": "Target point"}},
+    {"type": "POINT", "line": "POINT;6A;0013E45956BE;59CE;U;;FFAA327B;1000;FALSE;;;;100;130;0;2;30;;;;;;;Person in water;gfopep---------",
+     "reference": {"lat": 53.0, "lon": 8.0, "alt": 0},
+     "expect": {"speed": 2, "course": 30, "name": "Person in water"}},
+    {"type": "TEXT", "line": "TEXT;78;0195238E25AD;324E;S;TRUE;;;01;NONE;\"This is an alert!\";1000",
+     "expect": {"acknowledgement": "TRUE", "recipient": "", "kind": "alert", "text_decoded": "\"This is an alert!\"", "reference": "1000"}},
+    {"type": "TEXT", "line": "TEXT;7B;0195238E285B;324E;U;;;ORKA;04;BASE64;IlRoaXMgaXMgYSBjaGF0IG1lc3NhZ2UhIg==",
+     "expect": {"recipient": "ORKA", "kind": "chat", "text_decoded": "\"This is a chat message!\""}},
+    {"type": "TEXT", "line": "TEXT;78;0195238E25AD;324E;S;TRUE;;;01;NONE", "reject": true},
+    {"type": "HEARTBEAT", "line": "HEARTBEAT;42;0195238E25AD;89AD;U;;;ORKA", "expect": {"recipient": "ORKA"}},
+    {"type": "HEARTBEAT", "line": "HEARTBEAT;43;;1022", "expect": {"recipient": null}},
+    {"type": "HEARTBEAT", "line": "HEARTBEAT;43;", "expect": {"recipient": null}},
+    {"type": "HEARTBEAT", "line": "HEARTBEAT", "expect": {"recipient": null}},
+    {"type": "ACKNOWLEDGE", "line": "ACKNOWLEDGE;18;0195238E25AD;129E;R;;;LASSY;COMMAND;2B",
+     "expect": {"recipient": "LASSY", "typeOfMessage": "COMMAND", "numberOfMessage": "2B"}},
+    {"type": "TIMESYNC", "line": "TIMESYNC;42;0191C643A8AF;89AD;U", "expect": {"timestamp": null}},
+    {"type": "TIMESYNC", "line": "TIMESYNC;12;;FE2A;U;;;0191C643A8AF", "expect": {"timestamp": 1725608208559}}
+  ],
+
+  "serialize": [
+    {"note": "Felder ohne Wert bleiben leer. OWNUNIT sendet den SIDC in Großbuchstaben.",
+     "type": "OWNUNIT",
+     "fields": {"number": "00", "time": "01A19BD5FCD0", "sender": "MESE", "classification": "U", "latitude": 53.32, "longitude": 8.11, "sidc": "sfspclff-------"},
+     "expected": "OWNUNIT;00;01A19BD5FCD0;MESE;U;;;53.32;8.11;;;;;;;;SFSPCLFF-------\n"},
+    {"type": "HEARTBEAT",
+     "fields": {"number": "07", "time": "01A19BD5FCD0", "sender": "MESE", "classification": "U"},
+     "expected": "HEARTBEAT;07;01A19BD5FCD0;MESE;U;;;\n"},
+    {"type": "TEXT",
+     "fields": {"number": "01", "time": "01A19BD5FCD0", "sender": "MESE", "classification": "U", "recipient": "ORKA", "kind": "chat", "encoding": "BASE64", "text": "TfxuY2hlbiCj/w==", "reference": ""},
+     "expected": "TEXT;01;01A19BD5FCD0;MESE;U;;;ORKA;4;BASE64;TfxuY2hlbiCj/w==;\n"},
+    {"type": "ACKNOWLEDGE",
+     "fields": {"number": "02", "time": "01A19BD5FCD0", "sender": "MESE", "classification": "U", "recipient": "324E", "typeOfMessage": "TEXT", "numberOfMessage": "78"},
+     "expected": "ACKNOWLEDGE;02;01A19BD5FCD0;MESE;U;;;324E;TEXT;78\n"}
+  ]
+}
