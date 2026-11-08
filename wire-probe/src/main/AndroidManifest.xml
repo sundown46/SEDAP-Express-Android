@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Only for the loopback server in LibChecks; the probe never talks to another host. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application android:label="SEDAP wire probe">
         <activity android:name=".ProbeActivity" android:exported="true">
             <intent-filter>

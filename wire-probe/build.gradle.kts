@@ -1,7 +1,8 @@
-// Small test app for milestone L0: runs the wire code on old devices and measures its APK size.
-// Not part of the published library.
+// Small test app: runs the wire code (L0) and the Kotlin layer (L1) on old devices and measures the
+// APK size. Not part of the published library.
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 val desugar = providers.gradleProperty("sedap.desugar").map(String::toBoolean).getOrElse(true)
@@ -45,6 +46,10 @@ android {
                 else -> "src/withoutLib/java"
             },
         )
+        if (withLib || selfCheck) {
+            // Calls the Kotlin layer like app and plugin will; also run by the instrumented tests.
+            getByName("main").java.srcDir("src/libCheck/java")
+        }
         if (selfCheck) {
             getByName("main").java.srcDir("../sedap-wire/src/sharedTest/java")
             getByName("main").assets.srcDir("../vectors")
@@ -54,9 +59,15 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
 dependencies {
-    if (withLib) {
-        implementation(project(":sedap-wire"))
+    if (withLib || selfCheck) {
+        implementation(project(":sedap-express"))
     }
     if (desugar) {
         coreLibraryDesugaring(libs.desugar.jdk.libs)

@@ -43,6 +43,7 @@ final class ProbeEntry {
                 Log.i(TAG, "fuzz " + escape.getKey() + " | " + escape.getValue());
             }
             Log.i(TAG, "fuzz iterations=" + fuzz.iterations + " kinds=" + fuzz.escapes.size());
+            LibChecks.runAndLog();
         } catch (Throwable t) {
             Log.e(TAG, "aborted", t);
         }

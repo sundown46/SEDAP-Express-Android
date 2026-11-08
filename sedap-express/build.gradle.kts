@@ -60,7 +60,8 @@ dependencies {
     interopRuntime(project(":interop-jvm"))
 
     api(project(":sedap-wire"))
-    implementation(libs.kotlinx.coroutines.core)
+    // api, not implementation: StateFlow, SharedFlow and CoroutineScope are part of the public API.
+    api(libs.kotlinx.coroutines.core)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
