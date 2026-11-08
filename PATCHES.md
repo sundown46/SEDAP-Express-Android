@@ -38,12 +38,16 @@ Deliberate differences:
 | `InputStream.readAllBytes()` in `CompressUtils` | `compat.Streams.readAll()` | API 33. Also stops at 1 MiB, against compression bombs |
 | `catch (IOException)` in `CompressUtils` | Also catches `IllegalStateException` | Invalid Base64 must not escape from `decompressMessage` |
 
+## Test module `interop-jvm`
+
+Compiles `upstream/` unchanged for the JVM, with BouncyCastle, so `ReferenceInteropProcessTest` in `sedap-express` can run the reference as a separate process. No swaps. Left out are only the parts that need more than BouncyCastle: `module-info.java`, `controls/`, `json/`, `protobuf/`, and in `network/` the MQTT and REST classes and `SSLUtils`. The list is in `interop-jvm/build.gradle.kts`.
+
 ## Updating upstream
 
 ```
 tools/sync_upstream.sh <upstream-commit>
 git merge vendor/upstream
-./gradlew :sedap-wire:testDebugUnitTest
+./gradlew :sedap-wire:testDebugUnitTest :sedap-express:testDebugUnitTest
 ```
 
 The tests also pin every known difference between upstream and `vectors/golden-vectors.json`, so a change in wire behaviour fails the build.

@@ -12,6 +12,7 @@ Android build of the Java reference for [SEDAP-Express](https://github.com/UNIIT
 | `sedap-wire/` | Builds the upstream message classes for Android: parsing, serializing, MAC, compression |
 | `vectors/` | Expected wire results as JSON, independent of any implementation |
 | `wire-probe/` | Small test app that runs all checks on a device. Not part of the library |
+| `interop-jvm/` | Test module only: the unmodified Java reference for the JVM, which the tests of `sedap-express` talk to over real sockets. It is the only place that uses BouncyCastle, the library itself does not |
 
 ## Using it
 

@@ -38,7 +38,27 @@ kotlin {
     }
 }
 
+// The unmodified Java reference from :interop-jvm, started by ReferenceInteropProcessTest as its own
+// process (D-30). It never reaches the test class path, so BouncyCastle stays out of this module.
+val interopRuntime: Configuration by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
+        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
+    }
+}
+
+tasks.withType<Test>().configureEach {
+    val classpath: FileCollection = interopRuntime
+    inputs.files(classpath).withPropertyName("interopClasspath").withNormalizer(ClasspathNormalizer::class.java)
+    jvmArgumentProviders.add(CommandLineArgumentProvider { listOf("-Dsedap.interop.classpath=${classpath.asPath}") })
+}
+
 dependencies {
+    interopRuntime(project(":interop-jvm"))
+
     api(project(":sedap-wire"))
     implementation(libs.kotlinx.coroutines.core)
 
