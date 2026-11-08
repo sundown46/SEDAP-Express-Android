@@ -25,9 +25,12 @@ public interface TimeSource {
  */
 public class SedapClock(private val time: TimeSource = TimeSource.SYSTEM) {
 
+    // Volatile: the app flips isEnabled from its UI thread while the connection reads on its own dispatcher.
+    @Volatile
     private var offsetMillis: Long = 0
 
     /** Disabling resets the learned offset to 0. */
+    @Volatile
     public var isEnabled: Boolean = false
         set(value) {
             field = value
