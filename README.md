@@ -24,6 +24,7 @@ Needs JDK 17 and an Android SDK with platform 36.
 ```
 ./gradlew :sedap-wire:testDebugUnitTest         # JVM tests, reports in sedap-wire/build/reports/l0
 ./gradlew :sedap-wire:lintDebug                 # includes the check for APIs missing on API 21
+./gradlew :sedap-wire:testDebugUnitTest :sedap-express:testDebugUnitTest -Psedap.testLocale=de-DE  # again under another default locale
 ./gradlew :wire-probe:connectedDebugAndroidTest # all checks on a device, logcat tag SEDAPProbe
 python3 vectors/verify_vectors.py               # recalculates the vectors independently
 ```

@@ -162,7 +162,10 @@
     {"type": "ACKNOWLEDGE", "line": "ACKNOWLEDGE;18;0195238E25AD;129E;R;;;LASSY;COMMAND;2B",
      "expect": {"recipient": "LASSY", "typeOfMessage": "COMMAND", "numberOfMessage": "2B"}},
     {"type": "TIMESYNC", "line": "TIMESYNC;42;0191C643A8AF;89AD;U", "expect": {"timestamp": null}},
-    {"type": "TIMESYNC", "line": "TIMESYNC;12;;FE2A;U;;;0191C643A8AF", "expect": {"timestamp": 1725608208559}}
+    {"type": "TIMESYNC", "line": "TIMESYNC;12;;FE2A;U;;;0191C643A8AF", "expect": {"timestamp": 1725608208559}},
+    {"type": "OWNUNIT", "line": "OWNUNIT;5E;;;;;;53d;8.11", "reject": true, "source": "android", "note": "Soll: Zahl mit Typsuffix ist ungültig. Upstreams DOUBLE_MATCHER lässt durch den ungeschützten Punkt 53d durch, Double.valueOf liest 53.0 (PROTOCOL §8)."},
+    {"type": "OWNUNIT", "line": "OWNUNIT;5E;;;;;;53.32;8.11;;5f", "expect": {"latitude": 53.32, "speed": null}, "source": "android", "note": "Soll: ungültige optionale Zahl gilt als fehlend."},
+    {"type": "CONTACT", "line": "CONTACT;64;;66A3;S;;;104;FALSE;53.32;8.11;;;;;5x5", "expect": {"contactID": "104", "speed": null}, "source": "android", "note": "Soll: ungültige optionale Zahl gilt als fehlend, die Nachricht bleibt gültig. Upstream wirft in Double.valueOf und verwirft die ganze Nachricht."}
   ],
 
   "serialize": [

@@ -28,6 +28,12 @@ public object SedapParser {
     private const val CONTACT_COMMENT = 29
     private const val POINT_COMMENT = 26
 
+    /** Digits with an optional dot, as upstream's DOUBLE_MATCHER means it. Empty stays empty. */
+    private val STRICT_NUMBER = Regex("^(-?\\d+\\.?\\d*)?$")
+
+    /** Coordinates, relative distances, kinematics and size: 7-14 for OWNUNIT, 9-22 for CONTACT and POINT. */
+    private val NUMBER_FIELDS = mapOf("OWNUNIT" to 7..14, "CONTACT" to 9..22, "POINT" to 9..22)
+
     /** Returns null for unknown types, lines upstream rejects, and lines missing mandatory fields. */
     public fun parse(line: String, references: ReferenceLookup = ReferenceLookup.NONE): Inbound? {
         // Same split as upstream's splitMessage: empty fields kept, also at the end.
@@ -39,6 +45,13 @@ public object SedapParser {
             // The ICD examples write the text type with two digits, upstream accepts only one.
             val type = fields[TEXT_TYPE]
             if (type.length == 2 && type[0] == '0' && type[1] in '0'..'4') fields[TEXT_TYPE] = type.substring(1)
+        }
+
+        NUMBER_FIELDS[name]?.forEach { index ->
+            // An invalid number counts as missing (PROTOCOL §5). Upstream's DOUBLE_MATCHER has an unescaped
+            // dot, so "53d" or "5f" reach Double.valueOf and are read as numbers, and "5x5" throws there
+            // and loses the whole message (PROTOCOL §8).
+            if (index < fields.size && !STRICT_NUMBER.matches(fields[index])) fields[index] = ""
         }
 
         val message = try {

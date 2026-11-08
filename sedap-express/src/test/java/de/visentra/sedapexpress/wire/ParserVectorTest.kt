@@ -45,7 +45,7 @@ class ParserVectorTest {
                 if (wanted != actual) failures += "$id .$field: expected <$wanted> but got <$actual>"
             }
         }
-        assertEquals(6, rejects)
+        assertEquals(7, rejects)
         assertTrue(failures.joinToString("\n"), failures.isEmpty())
     }
 

@@ -66,6 +66,7 @@ public class ReportTest {
         final String strict = "upstream parses leniently, the Kotlin layer must reject this";
         final String twoDigits = "upstream only accepts one digit, the Kotlin layer must read 00-04";
         final String harness = "same meaning, only represented differently";
+        final String numbers = "upstream's DOUBLE_MATCHER has an unescaped dot, the Kotlin layer blanks invalid numbers";
         KNOWN.put("parse[3] OWNUNIT reject", strict);
         KNOWN.put("parse[6] CONTACT reject", strict);
         KNOWN.put("parse[7] CONTACT reject", strict);
@@ -81,6 +82,9 @@ public class ReportTest {
         KNOWN.put("parse[2] OWNUNIT .name", harness + ": null instead of empty");
         KNOWN.put("parse[14] TEXT .recipient", harness + ": null instead of empty");
         KNOWN.put("parse[4] CONTACT .source", harness + ": a set, upstream sorts it");
+        KNOWN.put("parse[24] OWNUNIT reject", numbers + ": 53d is read as 53.0");
+        KNOWN.put("parse[25] OWNUNIT .speed", numbers + ": 5f is read as 5.0");
+        KNOWN.put("parse[26] CONTACT", numbers + ": 5x5 throws and loses the whole message");
     }
 
     private static final String[] KNOWN_SMOKE_REJECTS = {
