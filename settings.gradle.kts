@@ -17,4 +17,5 @@ dependencyResolutionManagement {
 rootProject.name = "sedap-express-android"
 
 include(":sedap-wire")
+include(":sedap-express")
 include(":wire-probe")
