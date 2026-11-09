@@ -19,7 +19,7 @@ Android build of the Java reference for [SEDAP-Express](https://github.com/UNIIT
 
 Apps that use `sedap-wire` with `minSdk` below 33 need [core library desugaring](https://developer.android.com/studio/write/java8-support#library-desugaring). Without it the message classes do not load on API 21. `coreLibraryDesugaring` is pinned in `gradle/libs.versions.toml`.
 
-`sedap-express` adds Kotlin 2.1.10 and kotlinx-coroutines 1.10.2 (both part of its API). It needs no extra R8 rules. It imports nothing from `android.*`: platform parts such as keepalive timings, the multicast lock and network changes are plugged in through `SocketConfigurator`, `MulticastLockHook`, `networkLost()` and `networkAvailable()`.
+`sedap-express` adds Kotlin 2.1.10 and kotlinx-coroutines 1.8.1 (both part of its API; 1.8.1 is what ATAK 5.6 ships, so the library uses no newer coroutines API). It needs no extra R8 rules. It imports nothing from `android.*`: platform parts such as keepalive timings, the multicast lock and network changes are plugged in through `SocketConfigurator`, `MulticastLockHook`, `networkLost()` and `networkAvailable()`.
 
 ## Building and testing
 

@@ -7,9 +7,10 @@ orgJson = "20250517"
 bouncycastle = "1.86"
 androidxTestRunner = "1.6.2"
 androidxTestExtJunit = "1.2.1"
-# Matches the Kotlin version ATAK ships, so the plugin class loader sees one stdlib.
+# Not newer than the Kotlin version ATAK ships (5.6: 2.2.0), so the plugin class loader sees one stdlib.
 kotlin = "2.1.10"
-coroutines = "1.10.2"
+# Exactly the coroutines version ATAK 5.6 ships; in the plugin ATAK's classes win, newer APIs would be missing.
+coroutines = "1.8.1"
 
 [libraries]
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }

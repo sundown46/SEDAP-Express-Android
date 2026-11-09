@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -364,7 +365,11 @@ public class SedapConnection(
         /** The number field holds one byte as two hex digits. */
         const val MAX_NUMBER = 0xFF
 
-        /** The scope's dispatcher limited to one, so tests with a test dispatcher run in virtual time. */
+        /**
+         * The scope's dispatcher limited to one, so tests with a test dispatcher run in virtual time.
+         * Still experimental in coroutines 1.8.1, the version ATAK 5.6 ships (stable from 1.9).
+         */
+        @OptIn(ExperimentalCoroutinesApi::class)
         fun serialDispatcher(scope: CoroutineScope): CoroutineDispatcher {
             val dispatcher = scope.coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher
             val base = if (dispatcher == null || dispatcher === Dispatchers.Unconfined) Dispatchers.Default else dispatcher
